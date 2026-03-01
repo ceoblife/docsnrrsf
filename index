@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NRRsf — Protetor Auditivo</title>
+  <style>
+    :root { --border:#e5e7eb; --text:#111827; --muted:#6b7280; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; color: var(--text); background:#f8fafc; }
+    header { padding: 24px 16px; background:#0f172a; color:#fff; }
+    header h1 { margin:0 0 6px; font-size: 18px; font-weight: 700; }
+    header p { margin:0; opacity:.9; font-size: 13px; }
+
+    main { max-width: 980px; margin: 18px auto; padding: 0 16px 28px; }
+    .grid { display:grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 420px 1fr; } }
+
+    .card { background:#fff; border:1px solid var(--border); border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .card h2 { margin:0; padding: 14px 16px; border-bottom:1px solid var(--border); font-size: 14px; }
+    .card .content { padding: 16px; }
+
+    label { display:block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; }
+    input[type="number"], input[type="text"], input[type="date"] {
+      width: 100%; box-sizing:border-box;
+      padding: 10px 12px; border:1px solid var(--border); border-radius: 10px;
+      font-size: 14px; outline:none;
+    }
+    input:focus { border-color:#94a3b8; box-shadow: 0 0 0 3px rgba(148,163,184,.25); }
+
+    .row { display:flex; gap: 10px; }
+    .row > div { flex:1; }
+
+    .actions { display:flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    button {
+      appearance:none; border:1px solid var(--border); background:#fff;
+      padding: 10px 12px; border-radius: 10px; cursor:pointer; font-weight: 600;
+    }
+    button.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
+
+    .pill { display:inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight:700; }
+    .ok { background:#dcfce7; color:#166534; }
+    .neutral { background:#e2e8f0; color:#0f172a; }
+
+    .muted { color: var(--muted); font-size: 12px; margin-top: 8px; }
+    .error { color:#b91c1c; font-size: 12px; margin-top: 10px; }
+
+    #reportWrap { display:none; }
+    #report { padding: 18px; }
+    #report h3 { margin: 0 0 10px; font-size: 16px; }
+    #report .meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    #report table { width:100%; border-collapse: collapse; margin: 10px 0 12px; font-size: 13px; }
+    #report td { border:1px solid var(--border); padding: 10px; vertical-align: top; }
+    #report .sectionTitle { font-weight: 800; background:#f1f5f9; width: 260px; }
+    #report .big { font-size: 22px; font-weight: 900; margin: 6px 0 4px; }
+    #report .memorial { margin: 8px 0 0; padding-left: 14px; color: var(--text); }
+    #report .memorial li { margin: 4px 0; }
+
+    .introBox{
+      margin: 10px 0 14px;
+      padding: 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .introBox .title{ font-weight: 900; margin-bottom: 6px; }
+
+    .chartWrap { margin-top: 12px; }
+    .chartTitle { font-weight: 800; font-size: 13px; margin: 10px 0 8px; }
+    .chartBox {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .chartBox svg { width: 100%; height: auto; display:block; }
+
+    .glossary {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .glossary h4 { margin: 0 0 8px; font-size: 12px; color: var(--text); }
+    .glossary .item { margin: 4px 0; }
+    .glossary .term { font-weight: 800; color: var(--text); }
+
+    .finalNote {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .finalNote .title { font-weight: 900; margin: 0 0 6px; }
+    .finalNote .text { color: var(--muted); }
+
+    /* ✅ Notas técnicas finais: fora de quadro, menor e enumeradas */
+    .techNotesFinal {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: 10px;
+      font-size: 11px;          /* menor */
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .techNotesFinal .title{
+      font-weight: 900;
+      color: var(--text);
+      margin: 0 0 6px;
+      font-size: 12px;
+    }
+    .techNotesFinal ol{
+      margin: 0;
+      padding-left: 18px;       /* numeração */
+    }
+    .techNotesFinal li{
+      margin: 6px 0;
+    }
+    .techNotesFinal strong{ color: var(--text); }
+
+    .statusRow {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .statusRow .label { font-weight: 800; }
+    .statusBadge {
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .approved { background:#dcfce7; color:#166534; }
+    .reproved { background:#e2e8f0; color:#0f172a; }
+
+    @media print {
+      header, .no-print { display:none !important; }
+      body { background:#fff; }
+      main { margin:0; max-width:none; padding:0; }
+      .card { border:none; box-shadow:none; }
+      #report { padding: 0; }
+      .chartBox { border-color: #111827; }
+      .introBox { border-color:#111827; }
+    }
+  </style>
+</head>
+<body>
+  <header class="no-print">
+    <h1>Gerador NRRsf (Protetores Auditivos)</h1>
+    <p>Informe NE e NRRsf e gere um documento pronto para impressão/PDF.</p>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card no-print">
+        <h2>Dados de entrada</h2>
+        <div class="content">
+          <form id="form">
+            <div class="row">
+              <div>
+                <label for="company">Empresa</label>
+                <input id="company" type="text" placeholder="Razão social" required />
+              </div>
+              <div>
+                <label for="cnpj">CNPJ</label>
+                <input id="cnpj" type="text" placeholder="00.000.000/0000-00" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="expoType">Tipo de exposição</label>
+                <input id="expoType" type="text" placeholder="Ex.: contínua/intermitente; jornada; tarefa; etc." required />
+              </div>
+              <div>
+                <label for="noiseType">Tipo do ruído</label>
+                <input id="noiseType" type="text" placeholder="Ex.: contínuo/intermitente; impacto; tonal; etc." required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="ototox">Agentes químicos ototóxicos</label>
+                <input id="ototox" type="text" placeholder="Ex.: não aplicável / listar agentes" required />
+              </div>
+              <div>
+                <label for="reportDate">Data (selecionar)</label>
+                <input id="reportDate" type="date" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="ne">NE — Nível de Exposição (dB(A))</label>
+                <input id="ne" type="number" inputmode="decimal" step="0.1" min="0" max="140" placeholder="Ex.: 98,5" required />
+              </div>
+              <div>
+                <label for="nrrsf">NRRsf do protetor (dB)</label>
+                <input id="nrrsf" type="number" inputmode="decimal" step="0.1" min="0" max="50" placeholder="Ex.: 22" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="brand">Marca</label>
+                <input id="brand" type="text" placeholder="Ex.: 3M" required />
+              </div>
+              <div>
+                <label for="model">Modelo</label>
+                <input id="model" type="text" placeholder="Ex.: PompPlus" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="type">Tipo do EPA</label>
+                <input id="type" type="text" placeholder="Ex.: Inserção / Concha / Plug / etc." required />
+              </div>
+              <div>
+                <label for="ca">CA (Certificado de Aprovação)</label>
+                <input id="ca" type="text" placeholder="Ex.: 12345" required />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="primary" type="submit">Gerar</button>
+              <button type="button" id="btnClear">Limpar</button>
+            </div>
+
+            <div class="muted">Critérios do relatório: NA=80 dB(A), LT=85 dB(A), IPVS=115 dB(A).</div>
+            <div id="err" class="error" style="display:none;"></div>
+          </form>
+        </div>
+      </section>
+
+      <section class="card" id="reportWrap">
+        <h2 class="no-print">Prévia</h2>
+        <div id="report" class="content"></div>
+
+        <div class="content no-print" style="padding-top:0;">
+          <div class="actions">
+            <button type="button" id="btnPrint">Imprimir / Salvar em PDF</button>
+            <button type="button" id="btnCopy">Copiar texto</button>
+          </div>
+          <div class="muted">Dica: no print do navegador, selecione “Salvar como PDF”.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const NA_DB = 80;
+    const LT_DB = 85;
+    const IPVS_DB = 115;
+
+    const INTRO_TEXTO = `O presente relatório tem por objetivo apresentar, de forma técnica e padronizada, a estimativa do nível de ruído percebido na orelha protegida do trabalhador (NEp), a partir do Nível de Exposição ocupacional ao ruído (NE) informado no PGR e do valor de atenuação do Equipamento de Proteção Auditiva (EPA) expresso em NRRsf. Com base no cálculo NE − NRRsf = NEp, o documento fornece resultados numéricos e representação gráfica, permitindo verificar se a proteção estimada atende aos critérios de referência adotados para Nível de Ação (NA) e Limite de Tolerância (LT). Ressalta-se que os resultados constituem uma estimativa dependente das condições reais de uso do EPA (ajuste, vedação, treinamento e uso contínuo), devendo ser interpretados em conjunto com a avaliação de ruído ocupacional e os registros de gestão de SST.`;
+
+    const NIOSH_FITTEST_NOTE = `Este relatório não contempla a verificação individual da atenuação obtida por cada trabalhador por meio de fit testing quantitativo, nem a determinação do PAR (Personal Attenuation Rating). Conforme a NIOSH Science Policy Update – “Individual Fit-Testing Recommendation for Hearing Protection Devices” (NIOSH, Pub. No. 2025-104, 10 jan. 2025), recomenda-se que empregadores utilizem fit testing quantitativo individual para avaliar a atenuação efetivamente recebida e confirmar se a proteção alcançada é suficiente para o cenário real de exposição.`;
+
+    const $ = (id) => document.getElementById(id);
+
+    function format1(n) { return Number(n).toFixed(1).replace(".", ","); }
+
+    function formatDateBR(dateStr) {
+      if (!dateStr) return "";
+      const parts = String(dateStr).split("-");
+      if (parts.length !== 3) return dateStr;
+      const [yyyy, mm, dd] = parts;
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function todayInSaoPauloYMD() {
+      const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      return fmt.format(new Date());
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function pill(ok, okLabel, notOkLabel) {
+      const label = ok ? okLabel : notOkLabel;
+      const cls = ok ? "ok" : "neutral";
+      return `<span class="pill ${cls}">${escapeHtml(label)}</span>`;
+    }
+
+    function niceAxis(minV, maxV) {
+      const pad = 5;
+      let min = Math.floor((minV - pad) / 5) * 5;
+      let max = Math.ceil((maxV + pad) / 5) * 5;
+      min = Math.max(0, min);
+      max = Math.min(140, max);
+      if (max - min < 20) {
+        const mid = (max + min) / 2;
+        min = Math.max(0, Math.floor((mid - 10) / 5) * 5);
+        max = Math.min(140, Math.ceil((mid + 10) / 5) * 5);
+      }
+      const step = (max - min) >= 40 ? 10 : 5;
+      return { min, max, step };
+    }
+
+    function buildChartSVG({ ne, nrrsf, ear }) {
+      const W = 980, H = 430;
+      const m = { l: 90, r: 190, t: 60, b: 70 };
+      const pw = W - m.l - m.r;
+      const ph = H - m.t - m.b;
+
+      const minV = Math.min(ne, ear, NA_DB, LT_DB, IPVS_DB);
+      const maxV = Math.max(ne, ear, NA_DB, LT_DB, IPVS_DB);
+      const ax = niceAxis(minV, maxV);
+
+      const y = (v) => m.t + (ax.max - v) / (ax.max - ax.min) * ph;
+      const x1 = m.l + 40;
+      const x2 = m.l + pw - 40;
+
+      const yNE = y(ne);
+      const yNEp = y(ear);
+      const yNA = y(NA_DB);
+      const yLT = y(LT_DB);
+      const yIPVS = y(IPVS_DB);
+
+      const midX = (x1 + x2) / 2;
+
+      const ticks = [];
+      for (let v = ax.min; v <= ax.max + 0.001; v += ax.step) ticks.push({ v, yy: y(v) });
+
+      const neLabel = `${format1(ne)} dB(A)`;
+      const nepLabel = `${format1(ear)} dB(A)`;
+      const nrrLabel = `${format1(nrrsf)} dB`;
+
+      return `
+      <svg viewBox="0 0 980 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gráfico de cálculo NE menos NRRsf igual NEp">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#111827"/>
+          </marker>
+        </defs>
+
+        <text x="490" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#111827">
+          Cálculo gráfico do NRRsf: NE − NRRsf = NEp
+        </text>
+
+        <rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="#ffffff" stroke="#111827" stroke-width="1"/>
+
+        ${ticks.map(t => `
+          <line x1="${m.l}" y1="${t.yy}" x2="${m.l+pw}" y2="${t.yy}" stroke="#cbd5e1" stroke-width="1"/>
+          <text x="${m.l-10}" y="${t.yy+4}" text-anchor="end" font-size="12" fill="#111827">${t.v}</text>
+        `).join("")}
+
+        <text x="20" y="${m.t + ph/2}" transform="rotate(-90 20 ${m.t + ph/2})" text-anchor="middle" font-size="14" fill="#111827">
+          Nível de ruído [dB(A)]
+        </text>
+
+        <text x="${x1}" y="${m.t+ph+42}" text-anchor="middle" font-size="14" fill="#111827">
+          Ruído no ambiente (NE)
+        </text>
+        <text x="${x2}" y="${m.t+ph+42}" text-anchor="middle" font-size="14" fill="#111827">
+          Nível na orelha protegida (NEp)
+        </text>
+
+        <line x1="${m.l}" y1="${yIPVS}" x2="${m.l+pw}" y2="${yIPVS}" stroke="#111827" stroke-width="2" stroke-dasharray="2 6" opacity="0.85"/>
+        <text x="${m.l+pw+18}" y="${yIPVS+4}" font-size="14" fill="#111827">IPVS: ${IPVS_DB} dB(A)</text>
+
+        <line x1="${m.l}" y1="${yLT}" x2="${m.l+pw}" y2="${yLT}" stroke="#2563eb" stroke-width="2" stroke-dasharray="8 6"/>
+        <text x="${m.l+pw+18}" y="${yLT+4}" font-size="14" fill="#111827">LT: ${LT_DB} dB(A)</text>
+
+        <line x1="${m.l}" y1="${yNA}" x2="${m.l+pw}" y2="${yNA}" stroke="#0f172a" stroke-width="2" stroke-dasharray="4 6" opacity="0.55"/>
+        <text x="${m.l+pw+18}" y="${yNA+4}" font-size="14" fill="#111827" opacity="0.9">NA: ${NA_DB} dB(A)</text>
+
+        <line x1="${x1}" y1="${yNE}" x2="${x2}" y2="${yNEp}" stroke="#2563eb" stroke-width="4"/>
+        <circle cx="${x1}" cy="${yNE}" r="7" fill="#2563eb"/>
+        <circle cx="${x2}" cy="${yNEp}" r="7" fill="#2563eb"/>
+
+        <text x="${x1}" y="${yNE-14}" text-anchor="middle" font-size="16" font-weight="700" fill="#111827">${neLabel}</text>
+        <text x="${x2}" y="${yNEp-14}" text-anchor="middle" font-size="16" font-weight="700" fill="#111827">${nepLabel}</text>
+
+        <line x1="${midX}" y1="${yNE}" x2="${midX}" y2="${yNEp}" stroke="#111827" stroke-width="4"
+              marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+
+        <text x="${midX+18}" y="${(yNE+yNEp)/2 + 6}" font-size="16" font-weight="700" fill="#111827">
+          NRRsf = ${nrrLabel}
+        </text>
+      </svg>`;
+    }
+
+    function buildGlossary() {
+      return `
+        <div class="glossary">
+          <h4>Glossário</h4>
+          <div class="item"><span class="term">NRRsf</span>: Noise Reduction Rating – subject-fit (atenuação em dB). Observação: o NRRsf já considera ajuste “subject-fit”.</div>
+          <div class="item"><span class="term">CA</span>: Certificado de Aprovação do EPI.</div>
+          <div class="item"><span class="term">NE</span>: Nível de Exposição ocupacional ao ruído (valor informado no PGR/avaliação).</div>
+          <div class="item"><span class="term">NEp</span>: Nível estimado na orelha protegida após a atenuação do EPA (NE − NRRsf).</div>
+          <div class="item"><span class="term">dB(A)</span>: decibel com ponderação A.</div>
+          <div class="item"><span class="term">NA</span>: Nível de Ação. Critério usado: NA = ${NA_DB} dB(A).</div>
+          <div class="item"><span class="term">LT</span>: Limite de Tolerância. Critério usado: LT = ${LT_DB} dB(A).</div>
+          <div class="item"><span class="term">EPA</span>: Equipamento de Proteção Auditiva (protetor auditivo) utilizado para reduzir a exposição ao ruído.</div>
+          <div class="item"><span class="term">IPVS</span>: Índice de Pico para Valores de Segurança (linha de referência no gráfico).</div>
+        </div>
+      `;
+    }
+
+    function buildFinalNote() {
+      return `
+        <div class="finalNote">
+          <div class="title">Nota técnica – Fit Testing (PAR)</div>
+          <div class="text">${escapeHtml(NIOSH_FITTEST_NOTE)}</div>
+        </div>
+      `;
+    }
+
+    // ✅ Notas técnicas finais: menor, fora de quadro e enumeradas
+    function buildTechNotesAtEnd() {
+      return `
+        <div class="techNotesFinal">
+          <div class="title">Notas técnicas</div>
+          <ol>
+            <li><strong>Estimativa:</strong> este resultado é uma estimativa baseada em NE e NRRsf informados. A atenuação real depende de seleção, vedação, treinamento, uso contínuo, compatibilidade com outros EPIs e condições de trabalho.</li>
+            <li><strong>Referências:</strong> metodologia e critérios adaptados de referências técnicas e normativas, tais como: NR-15 (Anexo 1); FUNDACENTRO NHO-01 e NHO-02; ISO 9612; ANSI/ASA S12.6 e ISO 4869.</li>
+            <li><strong>Enquadramento:</strong> para enquadramentos por tempo/dose, deve-se aplicar a tabela/critério correspondente da NR-15.</li>
+          </ol>
+        </div>
+      `;
+    }
+
+    function buildDoc({ company, cnpj, expoType, noiseType, ototox, ne, nrrsf, reportDate, brand, model, type, ca }) {
+      const nep = ne - nrrsf;
+
+      const protectsNA = nep <= NA_DB;
+      const protectsLT = nep <= LT_DB;
+
+      const safeNe = format1(ne);
+      const safeNrr = format1(nrrsf);
+      const safeNep = format1(nep);
+
+      const epaApproved = protectsNA && protectsLT;
+      const epaText = epaApproved ? "APROVADO" : "REPROVADO";
+      const epaCls = epaApproved ? "approved" : "reproved";
+
+      const dateLine = `<div class="meta"><strong>Data:</strong> ${formatDateBR(reportDate)}</div>`;
+      const orgLine = `<div class="meta"><strong>Empresa:</strong> ${escapeHtml(company)} &nbsp; | &nbsp; <strong>CNPJ:</strong> ${escapeHtml(cnpj)}</div>`;
+
+      const exposureLine = `
+        <div class="meta">
+          <strong>Tipo de exposição:</strong> ${escapeHtml(expoType)} &nbsp; | &nbsp;
+          <strong>Tipo do ruído:</strong> ${escapeHtml(noiseType)} &nbsp; | &nbsp;
+          <strong>Agentes químicos ototóxicos:</strong> ${escapeHtml(ototox)}
+        </div>
+      `;
+
+      const intro = `
+        <div class="introBox">
+          <div class="title">Introdução</div>
+          <div>${escapeHtml(INTRO_TEXTO)}</div>
+        </div>
+      `;
+
+      const epaLine = `
+        <div class="meta">
+          <strong>EPA:</strong>
+          <strong>Marca:</strong> ${escapeHtml(brand)} | <strong>Modelo:</strong> ${escapeHtml(model)} |
+          <strong>Tipo:</strong> ${escapeHtml(type)} | <strong>CA:</strong> ${escapeHtml(ca)} |
+          <strong>NRRsf:</strong> ${safeNrr} dB
+        </div>
+      `;
+
+      const naBadge = pill(
+        protectsNA,
+        `Protege para NA (${NA_DB} dB(A))`,
+        `Não protege para NA (${NA_DB} dB(A))`
+      );
+
+      const ltBadge = pill(
+        protectsLT,
+        `Protege para LT (${LT_DB} dB(A))`,
+        `Não protege para LT (${LT_DB} dB(A))`
+      );
+
+      const chartSVG = buildChartSVG({ ne, nrrsf, ear: nep });
+
+      return `
+        <h3>NRRsf do EPA</h3>
+        ${dateLine}
+        ${orgLine}
+        ${exposureLine}
+        ${intro}
+        ${epaLine}
+
+        <table>
+          <tr>
+            <td class="sectionTitle">Exposição Ocupacional ao Ruído</td>
+            <td><div><strong>NE</strong>: ${safeNe} dB(A)</div></td>
+          </tr>
+
+          <tr>
+            <td class="sectionTitle">Resultados</td>
+            <td>
+              <div><strong>Memorial de cálculo</strong></div>
+              <ul class="memorial">
+                <li><strong>Fórmula:</strong> NEp = NE − NRRsf</li>
+                <li><strong>Substituição:</strong> NEp = ${safeNe} − ${safeNrr}</li>
+                <li><strong>Resultado:</strong> NEp = ${safeNep} dB(A)</li>
+              </ul>
+              <div class="big">${safeNep} dB(A)</div>
+
+              <div class="chartWrap">
+                <div class="chartTitle">Gráfico</div>
+                <div class="chartBox">${chartSVG}</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="sectionTitle">Conclusões</td>
+            <td>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                ${naBadge}
+                ${ltBadge}
+              </div>
+
+              <div class="statusRow">
+                <div class="label">Status do EPA</div>
+                <div class="statusBadge ${epaCls}">${epaText}</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        ${buildGlossary()}
+        ${buildFinalNote()}
+        ${buildTechNotesAtEnd()}
+      `;
+    }
+
+    const form = $("form");
+    const err = $("err");
+    const reportWrap = $("reportWrap");
+    const report = $("report");
+
+    function showError(msg) { err.style.display = "block"; err.textContent = msg; }
+    function clearError() { err.style.display = "none"; err.textContent = ""; }
+
+    $("reportDate").value = todayInSaoPauloYMD();
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      clearError();
+
+      const company = $("company").value.trim();
+      const cnpj = $("cnpj").value.trim();
+      const expoType = $("expoType").value.trim();
+      const noiseType = $("noiseType").value.trim();
+      const ototox = $("ototox").value.trim();
+
+      const ne = Number($("ne").value);
+      const nrrsf = Number($("nrrsf").value);
+      const reportDate = $("reportDate").value;
+
+      const brand = $("brand").value.trim();
+      const model = $("model").value.trim();
+      const type = $("type").value.trim();
+      const ca = $("ca").value.trim();
+
+      if (!company || !cnpj) return showError("Preencha Empresa e CNPJ.");
+      if (!expoType || !noiseType || !ototox) return showError("Preencha Tipo de exposição, Tipo do ruído e Agentes químicos ototóxicos.");
+      if (!reportDate) return showError("Selecione a data do documento.");
+      if (!brand || !model || !type || !ca) return showError("Preencha Marca, Modelo, Tipo e CA do EPA.");
+      if (!Number.isFinite(ne) || !Number.isFinite(nrrsf)) return showError("Preencha NE e NRRsf com valores numéricos.");
+      if (ne < 0 || ne > 140) return showError("NE fora de faixa (0 a 140 dB(A)).");
+      if (nrrsf < 0 || nrrsf > 50) return showError("NRRsf fora de faixa (0 a 50 dB).");
+
+      report.innerHTML = buildDoc({ company, cnpj, expoType, noiseType, ototox, ne, nrrsf, reportDate, brand, model, type, ca });
+      reportWrap.style.display = "block";
+      reportWrap.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    $("btnClear").addEventListener("click", () => {
+      $("company").value = "";
+      $("cnpj").value = "";
+      $("expoType").value = "";
+      $("noiseType").value = "";
+      $("ototox").value = "";
+      $("ne").value = "";
+      $("nrrsf").value = "";
+      $("brand").value = "";
+      $("model").value = "";
+      $("type").value = "";
+      $("ca").value = "";
+      $("reportDate").value = todayInSaoPauloYMD();
+      reportWrap.style.display = "none";
+      clearError();
+      $("company").focus();
+    });
+
+    $("btnPrint").addEventListener("click", () => window.print());
+
+    $("btnCopy").addEventListener("click", async () => {
+      const text = report.innerText.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Texto copiado para a área de transferência.");
+      } catch {
+        alert("Não foi possível copiar automaticamente. Selecione o texto e copie manualmente.");
+      }
+    });
+  </script>
+</body>
+</html>
